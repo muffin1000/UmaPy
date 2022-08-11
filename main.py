@@ -110,3 +110,5 @@ for i in range(len(masterSql()[1])):
     dir = os.listdir(path)
     if len(dir) == 0:
         os.rmdir(path)
+master.close()
+meta.close()
