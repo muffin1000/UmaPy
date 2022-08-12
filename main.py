@@ -1,8 +1,8 @@
 import sqlite3, os, subprocess, shutil
 
 user = os.getlogin()
-path = "C:\\Users\\" + user + "\\AppData\\LocalLow\\Cygames\\umamusume\\"
-masterPath = path + "master\\master.mdb"
+path = "C:/Users/" + user + "/AppData/LocalLow/Cygames/umamusume/"
+masterPath = path + "master/master.mdb"
 meta = path + "meta"
 master = sqlite3.connect(masterPath)
 meta = sqlite3.connect(meta)
@@ -28,13 +28,13 @@ def metaSql():
     for i in soundL:
         Sound = list(i)
         twoStrSong = Sound[1][0:2]
-        Sound[1] = path + "dat\\" + twoStrSong + "\\" + Sound[1]
+        Sound[1] = path + "dat/" + twoStrSong + "/" + Sound[1]
         songList.append(Sound)
         twoStrSongList.append(twoStrSong)
     for i in okeL:
         Oke = list(i)
         twoStrOke = Oke[1][0:2]
-        Oke[1] = path + "dat\\" + twoStrOke + "\\" + Oke[1]
+        Oke[1] = path + "dat/" + twoStrOke + "/" + Oke[1]
         okeList.append(Oke)
         twoStrOkeList.append(twoStrOke)
     return songList, okeList, twoStrOkeList, twoStrSongList
@@ -42,12 +42,13 @@ def metaSql():
 okeCopyPathList = []
 songCopyPathList = []
 os.mkdir("./temp/")
+print("Copying files...")
 for i in range(len(metaSql()[0])):
     try:
         os.mkdir("./temp/" + metaSql()[3][i])
     except FileExistsError:
         pass
-    songCopyPath = "./temp/" + metaSql()[0][i][1].replace(path, "").replace("dat\\", "") + ".awb"
+    songCopyPath = "./temp/" + metaSql()[0][i][1].replace(path, "").replace("dat/", "") + ".awb"
     songCopyPathList.append(songCopyPath)
     shutil.copyfile(metaSql()[0][i][1], songCopyPath)
 
@@ -56,13 +57,13 @@ for i in range(len(metaSql()[1])):
         os.mkdir("./temp/" + metaSql()[2][i])
     except FileExistsError:
         pass
-    okeCopyPath = "./temp/" + metaSql()[1][i][1].replace(path, "").replace("dat\\", "") + ".awb"
+    okeCopyPath = "./temp/" + metaSql()[1][i][1].replace(path, "").replace("dat/", "") + ".awb"
     okeCopyPathList.append(okeCopyPath)
     shutil.copyfile(metaSql()[1][i][1], okeCopyPath)
-
+print("Converting Oke...")
 okeNameList = []
 okeSaveName = []
-vgmstream = "C:\\Users\\" + user + "\\vgmstream-win\\test.exe"
+vgmstream = "C:/Users/" + user + "/vgmstream-win/test.exe"
 #oke
 os.mkdir("./temp/oke")
 for i in range(len(metaSql()[1])):
@@ -74,13 +75,13 @@ for i in range(len(masterSql()[1])):
             okeSaveName.append(["./temp/oke/" + masterSql()[1][i][1] + ".wav", okeCopyPathList[j]])
 for i in range(len(okeSaveName)):
     subprocess.run((vgmstream, "-o", okeSaveName[i][0], okeSaveName[i][1]), shell=True)
-
+print("Converting Chara voices...")
 #キャラボイス
 charaSongList = []
 firstList = []
 secondList = []
 for i in range(len(masterSql()[1])):
-    os.makedirs("./temp/song/" + masterSql()[1][i][1])
+    os.makedirs("./temp/songs/" + masterSql()[1][i][1])
     os.makedirs("./songs/" + masterSql()[1][i][1])
 for i in range(len(metaSql()[0])):
     charaSong = metaSql()[0][i][0].split("/")[-1].replace("snd_bgm_live_","").replace("_chara_",":").replace("_01.awb","")
@@ -97,18 +98,24 @@ for i in range(len(charaSongList)):
 num = len(charaSongList)
 charaSongList.clear()
 for i in range(num):
-    charaSongList.append(["./temp/song/" + firstList[i] + "\\" + firstList[i] + secondList[i] + ".wav", songCopyPathList[i]])
-    subprocess.run((vgmstream, "-o",  charaSongList[i][0], charaSongList[i][1]), shell=True)
-    cmd = ["sox", "-m", "./temp/song/" + firstList[i] + "/" + firstList[i] + secondList[i] + ".wav", "./temp/oke/" + firstList[i] + ".wav", "./songs/" + firstList[i] + "/" + secondList[i] + ".wav"]
-    subprocess.run(cmd)
-    print("./temp/song/" + firstList[i] + "/" + firstList[i] + secondList[i] + ".wav")
-    print("./temp/oke/" + firstList[i] + ".wav")
-    print("./songs/" + firstList[i] + "/" + secondList[i] + ".wav")
+    os.mkdir("./temp/songs/" + firstList[i] + "/" + secondList[i])
+    charaSongList.append(["./temp/songs/" + firstList[i] + "/" + secondList[i]+ "/" + secondList[i], songCopyPathList[i]])
+    saveSongPath = "./songs/" + firstList[i] + "/" + secondList[i] + ".wav"
+    subprocess.run((vgmstream, "-o", charaSongList[i][0] + "-1.wav", "-s", "1", charaSongList[i][1]), shell=True)
+    subprocess.run((vgmstream, "-o", charaSongList[i][0] + "-2.wav","-s", "2", charaSongList[i][1]), shell=True)
+    dir = os.listdir("./temp/songs/" + firstList[i] + "/" + secondList[i])
+    if len(dir) > 1:
+        subprocess.run(("sox", "-m", charaSongList[i][0] + "-1.wav", charaSongList[i][0] + "-2.wav", charaSongList[i][0] + "-3.wav"), shell=True)
+        subprocess.run(("sox", "-m", charaSongList[i][0] + "-3.wav", "./temp/oke/" + firstList[i] + ".wav", saveSongPath), shell=True)
+    else:
+        subprocess.run(("sox", "-m", charaSongList[i][0] + "-1.wav", "./temp/oke/" + firstList[i] + ".wav", saveSongPath), shell=True)
+    print(saveSongPath)
 shutil.rmtree("./temp")
 for i in range(len(masterSql()[1])):
     path = "./songs/" + masterSql()[1][i][1]
     dir = os.listdir(path)
     if len(dir) == 0:
         os.rmdir(path)
-master.close()
 meta.close()
+master.close()
+print("Converted successfully!")
