@@ -1,4 +1,5 @@
 import sqlite3, os, subprocess, shutil
+from pydub import AudioSegment
 
 user = os.getlogin()
 path = "C:/Users/" + user + "/AppData/LocalLow/Cygames/umamusume/"
@@ -100,16 +101,23 @@ charaSongList.clear()
 for i in range(num):
     os.mkdir("./temp/songs/" + firstList[i] + "/" + secondList[i])
     charaSongList.append(["./temp/songs/" + firstList[i] + "/" + secondList[i]+ "/" + secondList[i], songCopyPathList[i]])
-    saveSongPath = "./songs/" + firstList[i] + "/" + secondList[i] + ".wav"
+    saveSongPath = "./songs/" + firstList[i] + "/" + secondList[i] + ".mp3"
+    okePath = "./temp/oke/" + firstList[i] + ".wav"
     subprocess.run((vgmstream, "-o", charaSongList[i][0] + "-1.wav", "-s", "1", charaSongList[i][1]), shell=True)
     subprocess.run((vgmstream, "-o", charaSongList[i][0] + "-2.wav","-s", "2", charaSongList[i][1]), shell=True)
     dir = os.listdir("./temp/songs/" + firstList[i] + "/" + secondList[i])
     if len(dir) > 1:
-        subprocess.run(("sox", "-m", charaSongList[i][0] + "-1.wav", charaSongList[i][0] + "-2.wav", charaSongList[i][0] + "-3.wav"), shell=True)
-        subprocess.run(("sox", "-m", charaSongList[i][0] + "-3.wav", "./temp/oke/" + firstList[i] + ".wav", saveSongPath), shell=True)
+        subprocess.run(("ffmpeg", "-i", charaSongList[i][0] + "-1.wav", "-c:v", "copy", "-filter:a", "volume=2.0", charaSongList[i][0] + "-1 -v.wav"), shell=True)
+        sound1 = AudioSegment.from_file(charaSongList[i][0] + "-1 -v.wav")
+        sound2 = AudioSegment.from_file(charaSongList[i][0] + "-2.wav")
+        sound1.overlay(sound2).export(charaSongList[i][0] + "-3.wav", format="wav")
+        sound3 = AudioSegment.from_file(charaSongList[i][0] + "-3.wav")
+        oke = AudioSegment.from_file(okePath)
+        sound3.overlay(oke).export(saveSongPath, format="mp3")
     else:
-        subprocess.run(("sox", "-m", charaSongList[i][0] + "-1.wav", "./temp/oke/" + firstList[i] + ".wav", saveSongPath), shell=True)
-    print(saveSongPath)
+        sound1 = AudioSegment.from_file(charaSongList[i][0] + "-1.wav")
+        oke = AudioSegment.from_file(okePath)
+        sound1.overlay(oke).export(saveSongPath, format="mp3")
 shutil.rmtree("./temp")
 for i in range(len(masterSql()[1])):
     path = "./songs/" + masterSql()[1][i][1]
