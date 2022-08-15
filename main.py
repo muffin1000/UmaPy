@@ -64,7 +64,6 @@ for i in range(len(metaSql()[1])):
 print("Converting Oke...")
 okeNameList = []
 okeSaveName = []
-vgmstream = "C:/Users/" + user + "/vgmstream-win/test.exe"
 #oke
 os.mkdir("./temp/oke")
 for i in range(len(metaSql()[1])):
@@ -75,7 +74,7 @@ for i in range(len(masterSql()[1])):
         if masterSql()[1][i][0] == int(okeNameList[j]):
             okeSaveName.append(["./temp/oke/" + masterSql()[1][i][1] + ".wav", okeCopyPathList[j]])
 for i in range(len(okeSaveName)):
-    subprocess.run((vgmstream, "-o", okeSaveName[i][0], okeSaveName[i][1]), shell=True)
+    subprocess.run(("vgmstream", "-o", okeSaveName[i][0], okeSaveName[i][1]), shell=True)
 print("Converting Chara voices...")
 #キャラボイス
 charaSongList = []
@@ -103,8 +102,8 @@ for i in range(num):
     charaSongList.append(["./temp/songs/" + firstList[i] + "/" + secondList[i]+ "/" + secondList[i], songCopyPathList[i]])
     saveSongPath = "./songs/" + firstList[i] + "/" + secondList[i] + ".mp3"
     okePath = "./temp/oke/" + firstList[i] + ".wav"
-    subprocess.run((vgmstream, "-o", charaSongList[i][0] + "-1.wav", "-s", "1", charaSongList[i][1]), shell=True)
-    subprocess.run((vgmstream, "-o", charaSongList[i][0] + "-2.wav","-s", "2", charaSongList[i][1]), shell=True)
+    subprocess.run(("vgmstream", "-o", charaSongList[i][0] + "-1.wav", "-s", "1", charaSongList[i][1]), shell=True)
+    subprocess.run(("vgmstream", "-o", charaSongList[i][0] + "-2.wav","-s", "2", charaSongList[i][1]), shell=True)
     dir = os.listdir("./temp/songs/" + firstList[i] + "/" + secondList[i])
     if len(dir) > 1:
         subprocess.run(("ffmpeg", "-i", charaSongList[i][0] + "-1.wav", "-c:v", "copy", "-filter:a", "volume=2.0", charaSongList[i][0] + "-1 -v.wav"), shell=True)
