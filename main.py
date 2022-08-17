@@ -100,7 +100,7 @@ charaSongList.clear()
 for i in range(num):
     os.mkdir("./temp/songs/" + firstList[i] + "/" + secondList[i])
     charaSongList.append(["./temp/songs/" + firstList[i] + "/" + secondList[i]+ "/" + secondList[i], songCopyPathList[i]])
-    saveSongPath = "./songs/" + firstList[i] + "/" + secondList[i] + ".mp3"
+    saveSongPath = "./songs/" + firstList[i] + "/" + firstList[i] + "_" + secondList[i] + ".mp3"
     okePath = "./temp/oke/" + firstList[i] + ".wav"
     subprocess.run(("vgmstream", "-o", charaSongList[i][0] + "-1.wav", "-s", "1", charaSongList[i][1]), shell=True)
     subprocess.run(("vgmstream", "-o", charaSongList[i][0] + "-2.wav","-s", "2", charaSongList[i][1]), shell=True)
@@ -111,11 +111,11 @@ for i in range(num):
         sound1.overlay(sound2).export(charaSongList[i][0] + "-3.wav", format="wav")
         sound3 = AudioSegment.from_file(charaSongList[i][0] + "-3.wav")
         oke = AudioSegment.from_file(okePath)
-        sound3.overlay(oke).export(saveSongPath, format="mp3")
+        oke.overlay(sound3).export(saveSongPath, format="mp3", bitrate="320k")
     else:
         sound1 = AudioSegment.from_file(charaSongList[i][0] + "-1.wav")
         oke = AudioSegment.from_file(okePath)
-        sound1.overlay(oke).export(saveSongPath, format="mp3")
+        oke.overlay(sound1).export(saveSongPath, format="mp3", bitrate="320k")
 shutil.rmtree("./temp")
 for i in range(len(masterSql()[1])):
     path = "./songs/" + masterSql()[1][i][1]
