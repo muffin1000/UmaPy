@@ -111,11 +111,11 @@ for i in range(num):
         sound1.overlay(sound2).export(charaSongList[i][0] + "-3.wav", format="wav")
         sound3 = AudioSegment.from_file(charaSongList[i][0] + "-3.wav")
         oke = AudioSegment.from_file(okePath)
-        oke.overlay(sound3).export(saveSongPath, format="mp3", bitrate="320k")
+        oke.overlay(sound3).export(saveSongPath, format="mp3", bitrate="128k")
     else:
         sound1 = AudioSegment.from_file(charaSongList[i][0] + "-1.wav")
         oke = AudioSegment.from_file(okePath)
-        oke.overlay(sound1).export(saveSongPath, format="mp3", bitrate="320k")
+        oke.overlay(sound1).export(saveSongPath, format="mp3", bitrate="128k")
 shutil.rmtree("./temp")
 for i in range(len(masterSql()[1])):
     path = "./songs/" + masterSql()[1][i][1]
