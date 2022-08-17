@@ -8,7 +8,7 @@ meta = path + "meta"
 master = sqlite3.connect(masterPath)
 meta = sqlite3.connect(meta)
 def masterSql():
-    charaList = []
+    charaList = [] 
     songNameList = []
     charaID = master.execute('SELECT "index", text FROM text_data WHERE category = 170')
     SongName = master.execute('SELECT "index", text FROM text_data WHERE category = 16')
