@@ -9,39 +9,39 @@ master = sqlite3.connect(masterPath)
 meta = sqlite3.connect(meta)
 def masterSql():
     charaList = [] 
-    songNameList = []
-    charaID = master.execute('SELECT "index", text FROM text_data WHERE category = 170')
-    SongName = master.execute('SELECT "index", text FROM text_data WHERE category = 16')
-    for i in charaID:
-        Chara = list(i)
-        charaList.append(Chara)
-    for i in SongName:
-        Song = list(i)
-        songNameList.append(Song)
-    return charaList, songNameList
+    soundNameList = []
+    charaQ = master.execute('SELECT "index", text FROM text_data WHERE category = 170')
+    soundNameQ = master.execute('SELECT "index", text FROM text_data WHERE category = 16')
+    for i in charaQ:
+        chara = list(i)
+        charaList.append(chara)
+    for i in soundNameQ:
+        sound = list(i)
+        soundNameList.append(sound)
+    return charaList, soundNameList
 def metaSql():
-    songList = []
+    soundList = []
     okeList = []
     twoStrOkeList = []
-    twoStrSongList = []
-    soundL = meta.execute("SELECT  n ,h FROM a where n like 'sound/l/%chara%awb'")
-    okeL = meta.execute("SELECT  n ,h FROM a where n like 'sound/l/%oke_01.awb'")
-    for i in soundL:
-        Sound = list(i)
-        twoStrSong = Sound[1][0:2]
-        Sound[1] = path + "dat/" + twoStrSong + "/" + Sound[1]
-        songList.append(Sound)
-        twoStrSongList.append(twoStrSong)
-    for i in okeL:
-        Oke = list(i)
-        twoStrOke = Oke[1][0:2]
-        Oke[1] = path + "dat/" + twoStrOke + "/" + Oke[1]
-        okeList.append(Oke)
+    twoStrSoundList = []
+    soundSrcQ = meta.execute("SELECT  n ,h FROM a where n like 'sound/l/%chara%awb'")
+    okeSrcQ = meta.execute("SELECT  n ,h FROM a where n like 'sound/l/%oke_01.awb'")
+    for i in soundSrcQ:
+        soundSrc = list(i)
+        twoStrSound = soundSrc[1][0:2]
+        soundSrc[1] = path + "dat/" + twoStrSound + "/" + soundSrc[1]
+        soundList.append(soundSrc)
+        twoStrSoundList.append(twoStrSound)
+    for i in okeSrcQ:
+        okeSrc = list(i)
+        twoStrOke = okeSrc[1][0:2]
+        okeSrc[1] = path + "dat/" + twoStrOke + "/" + okeSrc[1]
+        okeList.append(okeSrc)
         twoStrOkeList.append(twoStrOke)
-    return songList, okeList, twoStrOkeList, twoStrSongList
+    return soundList, okeList, twoStrOkeList, twoStrSoundList
 
 okeCopyPathList = []
-songCopyPathList = []
+soundCopyPathList = []
 os.mkdir("./temp/")
 print("Copying files...")
 for i in range(len(metaSql()[0])):
@@ -50,7 +50,7 @@ for i in range(len(metaSql()[0])):
     except FileExistsError:
         pass
     songCopyPath = "./temp/" + metaSql()[0][i][1].replace(path, "").replace("dat/", "") + ".awb"
-    songCopyPathList.append(songCopyPath)
+    soundCopyPathList.append(songCopyPath)
     shutil.copyfile(metaSql()[0][i][1], songCopyPath)
 
 for i in range(len(metaSql()[1])):
@@ -99,7 +99,7 @@ num = len(charaSongList)
 charaSongList.clear()
 for i in range(num):
     os.mkdir("./temp/songs/" + firstList[i] + "/" + secondList[i])
-    charaSongList.append(["./temp/songs/" + firstList[i] + "/" + secondList[i]+ "/" + secondList[i], songCopyPathList[i]])
+    charaSongList.append(["./temp/songs/" + firstList[i] + "/" + secondList[i]+ "/" + secondList[i], soundCopyPathList[i]])
     saveSongPath = "./songs/" + firstList[i] + "/" + firstList[i] + "_" + secondList[i] + ".mp3"
     okePath = "./temp/oke/" + firstList[i] + ".wav"
     subprocess.run(("vgmstream", "-o", charaSongList[i][0] + "-1.wav", "-s", "1", charaSongList[i][1]), shell=True)
