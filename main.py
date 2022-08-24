@@ -25,7 +25,7 @@ def metaSql():
     twoStrOkeList = []
     twoStrSoundList = []
     soundSrcQ = meta.execute("SELECT  n ,h FROM a where n like 'sound/l/%chara%awb'")
-    okeSrcQ = meta.execute("SELECT  n ,h FROM a where n like 'sound/l/%oke_01.awb'")
+    okeSrcQ = meta.execute("SELECT  n ,h FROM a where n like 'sound/l/%oke_02.awb'")
     for i in soundSrcQ:
         soundSrc = list(i)
         twoStrSound = soundSrc[1][0:2]
@@ -67,12 +67,17 @@ okeSaveName = []
 #oke
 os.mkdir("./temp/oke")
 for i in range(len(metaSql()[1])):
-    okeName = metaSql()[1][i][0].split("/")[-1].replace("snd_bgm_live_","").replace("_oke_01.awb","")
+    okeName = metaSql()[1][i][0].split("/")[-1].replace("snd_bgm_live_","").replace("_oke_02.awb","")
     okeNameList.append(okeName)
 for i in range(len(masterSql()[1])):
     for j in range(len(metaSql()[1])):
         if masterSql()[1][i][0] == int(okeNameList[j]):
-            okeSaveName.append(["./temp/oke/" + masterSql()[1][i][1] + ".wav", okeCopyPathList[j]])
+            if masterSql()[1][i][0] == 1029:
+                okeSaveName.append(["./temp/oke/" + masterSql()[1][i][1]+ " Long ver" + ".wav", okeCopyPathList[j]])
+            elif masterSql()[1][i][0] == 1036:
+                okeSaveName.append(["./temp/oke/" + masterSql()[1][i][1]+ " Short ver" + ".wav", okeCopyPathList[j]])
+            else:
+                okeSaveName.append(["./temp/oke/" + masterSql()[1][i][1] + ".wav", okeCopyPathList[j]])
 for i in range(len(okeSaveName)):
     subprocess.run(("vgmstream", "-o", okeSaveName[i][0], okeSaveName[i][1]), shell=True)
 print("Converting Chara voices...")
@@ -81,16 +86,30 @@ charaSongList = []
 firstList = []
 secondList = []
 for i in range(len(masterSql()[1])):
-    os.makedirs("./temp/songs/" + masterSql()[1][i][1])
-    os.makedirs("./songs/" + masterSql()[1][i][1])
+        if masterSql()[1][i][0] == 1029:
+            os.makedirs("./temp/songs/" + masterSql()[1][i][1] + " Long ver")
+            os.makedirs("./songs/" + masterSql()[1][i][1] + " Long ver")
+        elif masterSql()[1][i][0] == 1036:
+            os.makedirs("./temp/songs/" + masterSql()[1][i][1] + " Short ver")
+            os.makedirs("./songs/" + masterSql()[1][i][1] + " Short ver")
+        else:
+            os.makedirs("./temp/songs/" + masterSql()[1][i][1])
+            os.makedirs("./songs/" + masterSql()[1][i][1])
 for i in range(len(metaSql()[0])):
     charaSong = metaSql()[0][i][0].split("/")[-1].replace("snd_bgm_live_","").replace("_chara_",":").replace("_01.awb","")
     charaSongList.append(charaSong)
 for i in range(len(charaSongList)):
     for j in range(len(masterSql()[1])):
         if int(charaSongList[i].split(":")[0]) == masterSql()[1][j][0]:
-            thefirst = masterSql()[1][j][1]
-            firstList.append(thefirst)
+            if masterSql()[1][j][0] == 1029:
+                thefirst = masterSql()[1][j][1] + " Long ver"
+                firstList.append(thefirst)
+            elif masterSql()[1][j][0] == 1036:
+                thefirst = masterSql()[1][j][1] + " Short ver"
+                firstList.append(thefirst)
+            else:
+                thefirst = masterSql()[1][j][1]
+                firstList.append(thefirst)
     for j in range(len(masterSql()[0])):
         if int(charaSongList[i].split(":")[1]) == masterSql()[0][j][0]:
             thesecond = masterSql()[0][j][1]
@@ -117,11 +136,19 @@ for i in range(num):
         oke = AudioSegment.from_file(okePath)
         oke.overlay(sound1).export(saveSongPath, format="mp3", bitrate="128k")
 shutil.rmtree("./temp")
-for i in range(len(masterSql()[1])):
-    path = "./songs/" + masterSql()[1][i][1]
-    dir = os.listdir(path)
+try:
+    for i in range(len(masterSql()[1])):
+        path = "./songs/" + masterSql()[1][i][1]
+        dir = os.listdir(path)
+        if len(dir) == 0:
+            os.rmdir(path)
+except FileNotFoundError:
+    path = "./songs/" + masterSql()[1][i][1] + "Long ver"
     if len(dir) == 0:
         os.rmdir(path)
+    path = "./songs/" + masterSql()[1][i][1] + "Short ver"
+    if len(dir) == 0:
+        os.rmdir(path)  
 meta.close()
 master.close()
 print("Converted successfully!")
